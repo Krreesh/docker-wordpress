@@ -1,0 +1,41 @@
+version: '3.1'
+services:
+  wordpress:
+    container_name: wordpress
+    image: wordpress
+    depends_on: 
+      - db
+    expose:
+      - 80
+    # networks: 
+    # - wordpress
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: krish
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      VIRTUAL_HOST: blog.bang.tk
+    volumes:
+      - wordpress:/var/www/html
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: krish
+      MYSQL_PASSWORD: wordpress
+    volumes:
+      - db:/var/lib/mysql
+  
+  mynginx:
+    image: nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+volumes:
+  wordpress:
+  db:

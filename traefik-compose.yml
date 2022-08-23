@@ -1,0 +1,43 @@
+#Another wordpress yaml, run below command
+#docker stack deploy --compose-file newcompose.yml wordstack
+
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.3.6
+    restart: always
+    command:
+      - --accesslog
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+
+  wordpress:
+    image: wordpress:php7.4-apache
+    depends_on:
+      - mysql
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=mysql
+      - WORDPRESS_DB_USER=root
+      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_DB_PASSWORD=password
+    expose:
+      - 80
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.wordpress.rule=Host(`bang.tk`)
+
+  mysql:
+    image: mysql:8.0.22
+    restart: always
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_ROOT_PASSWORD=password
